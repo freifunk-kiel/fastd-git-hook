@@ -20,7 +20,20 @@ git diff --cached --name-status --diff-filter=ACM | cut -d$'\t' -f2 \
   | grep -v -E "(^\s*#|^\s*remote|^$)")
   if [ "$diffstr" != "" ] ; then
     echo "$keyfile: you have a malformed key in your changes , you can't commit until it has been corrected:"
-    echo $diffstr
+    echo "$diffstr"
     exit 1
   fi
 done
+
+#check for double keys:
+doublekeys="$(cat *|grep key|sed -e 's/#.*$//g; s/ \+/ /g; s/^ //g; s/ $//g'|sort|uniq -c|sort|tail \
+              | grep -v "1 key"|cut -d" " -f 9|sed -e 's/[";]//g' \
+              | while read key; do \ 
+                grep -H $key *; \
+              done)"
+if [ "$doublekeys" != "" ] ; then
+    echo "Diese Keys sind doppelt vorhanden:"
+    echo "$doublekeys"
+    echo "Jeder Key darf nur einmal vorkommen"
+    exit 1
+  fi
