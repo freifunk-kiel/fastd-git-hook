@@ -28,7 +28,7 @@ done
 # check for double keys:
 doublekeys="$(cat *|grep key|sed -e 's/#.*$//g; s/ \+/ /g; s/^ //g; s/ $//g'|sort|uniq -c|sort|tail \
               | grep -v "1 key"|cut -d" " -f 9|sed -e 's/[";]//g' \
-              | while read key; do \ 
+              | while read key; do \
                 grep -H $key *; \
               done)"
 if [ "$doublekeys" != "" ] ; then
