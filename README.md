@@ -1,0 +1,1 @@
+# fastd-git-hook
