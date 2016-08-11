@@ -32,9 +32,9 @@ doublekeys="$(cat *|grep key|sed -e 's/#.*$//g; s/ \+/ /g; s/^ //g; s/ $//g'|sor
                 grep -H $key *; \
               done)"
 if [ "$doublekeys" != "" ] ; then
-  echo "Diese Keys sind doppelt vorhanden:"
+  echo "those keys are in more than one files:"
   echo "$doublekeys"
-  echo "Jeder Key darf nur einmal vorkommen"
+  echo "each key is only allowed in one file"
   exit 1
 fi
 
