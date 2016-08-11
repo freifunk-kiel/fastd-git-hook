@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# A hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# This script checks if all files to be committed fit the needs for 
+# a valid fastd-keyfile so it can be pulled to all Freifu9nk gateways
+# and used as public key
+
+# Redirect output to stderr.
+exec 1>&2
+
+git diff --cached --name-status --diff-filter=ACM | cut -d$'\t' -f2 \
+| while read keyfile file; do
+  #sanitize last linebreak:
+  tail -c1 "$keyfile" | read -r _ || echo >> "$keyfile" 
+  diffstr=$(cat "$keyfile" | grep -v -E "^\s*key\s+\"\w{64}\";\s*(#.*)*$" \
+  | grep -v -E "(^\s*#|^\s*remote|^$)")
+  if [ "$diffstr" != "" ] ; then
+    echo "$keyfile: you have a malformed key in your changes , you can't commit until it has been corrected:"
+    echo $diffstr
+    exit 1
+  fi
+done
