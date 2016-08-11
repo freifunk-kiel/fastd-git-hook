@@ -12,8 +12,7 @@
 # Redirect output to stderr.
 exec 1>&2
 
-git diff --cached --name-status --diff-filter=ACM | cut -d$'\t' -f2 \
-| while read keyfile file; do
+while read keyfile file; do
   # sanitize last linebreak:
   tail -c1 "$keyfile" | read -r _ || echo >> "$keyfile" 
   diffstr=$(cat "$keyfile" | grep -v -E "^\s*key\s+\"\w{64}\";\s*(#.*)*$" \
@@ -23,11 +22,7 @@ git diff --cached --name-status --diff-filter=ACM | cut -d$'\t' -f2 \
     echo "$diffstr"
     exit 1
   fi
-done
-
-# exit if the while subshell exited
-exitcode=$?
-if [ $exitcode != 0 ]; then exit $exitcode; fi
+done < <(git diff --cached --name-status --diff-filter=ACM | cut -f2)
 
 # check for double keys:
 doublekeys="$(cat *|grep key|sed -e 's/#.*$//g; s/ \+/ /g; s/^ //g; s/ $//g'|sort|uniq -c|sort|tail \
@@ -43,8 +38,7 @@ if [ "$doublekeys" != "" ] ; then
 fi
 
 # optionally rename all uppercase letters with :
-#exitcode=$?; 
-#if [ $exitcode != 0 ]; then exit $exitcode; fi
 #for f in *; do NEW="$(echo $f | tr '[A-Z]' '[a-z]')"; if [ "$f" != "$NEW" ]; then git mv -v $f $NEW; fi; done;
 # if you use a README file, add this too:
 #git mv -v _readme _README
+
