@@ -26,7 +26,8 @@ git diff --cached --name-status --diff-filter=ACM | cut -d$'\t' -f2 \
 done
 
 # exit if the while subshell exited
-if [ $? ]; then exit 1; fi
+exitcode=$?
+if [ $exitcode != 0 ]; then exit $exitcode; fi
 
 # check for double keys:
 doublekeys="$(cat *|grep key|sed -e 's/#.*$//g; s/ \+/ /g; s/^ //g; s/ $//g'|sort|uniq -c|sort|tail \
@@ -42,7 +43,8 @@ if [ "$doublekeys" != "" ] ; then
 fi
 
 # optionally rename all uppercase letters with :
-#if [ $? ]; then exit 1; fi
+#exitcode=$?; 
+#if [ $exitcode != 0 ]; then exit $exitcode; fi
 #for f in *; do NEW="$(echo $f | tr '[A-Z]' '[a-z]')"; if [ "$f" != "$NEW" ]; then git mv -v $f $NEW; fi; done;
 # if you use a README file, add this too:
 #git mv -v _readme _README
