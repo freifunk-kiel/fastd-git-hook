@@ -14,7 +14,7 @@ exec 1>&2
 
 git diff --cached --name-status --diff-filter=ACM | cut -d$'\t' -f2 \
 | while read keyfile file; do
-  #sanitize last linebreak:
+  # sanitize last linebreak:
   tail -c1 "$keyfile" | read -r _ || echo >> "$keyfile" 
   diffstr=$(cat "$keyfile" | grep -v -E "^\s*key\s+\"\w{64}\";\s*(#.*)*$" \
   | grep -v -E "(^\s*#|^\s*remote|^$)")
@@ -25,15 +25,20 @@ git diff --cached --name-status --diff-filter=ACM | cut -d$'\t' -f2 \
   fi
 done
 
-#check for double keys:
+# check for double keys:
 doublekeys="$(cat *|grep key|sed -e 's/#.*$//g; s/ \+/ /g; s/^ //g; s/ $//g'|sort|uniq -c|sort|tail \
               | grep -v "1 key"|cut -d" " -f 9|sed -e 's/[";]//g' \
               | while read key; do \ 
                 grep -H $key *; \
               done)"
 if [ "$doublekeys" != "" ] ; then
-    echo "Diese Keys sind doppelt vorhanden:"
-    echo "$doublekeys"
-    echo "Jeder Key darf nur einmal vorkommen"
-    exit 1
-  fi
+  echo "Diese Keys sind doppelt vorhanden:"
+  echo "$doublekeys"
+  echo "Jeder Key darf nur einmal vorkommen"
+  exit 1
+fi
+
+# optionally rename all uppercase letters with :
+#for f in *; do NEW="$(echo $f | tr '[A-Z]' '[a-z]')"; if [ "$f" != "$NEW" ]; then git mv -v $f $NEW; fi; done;
+# if you use a README file, add this too:
+#git mv -v _readme _README
