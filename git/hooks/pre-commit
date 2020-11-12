@@ -13,6 +13,7 @@
 exec 1>&2
 
 while read keyfile file; do
+ if [ $keyfile != ".gitmodules" ]; then
   # sanitize last linebreak:
   tail -c1 "$keyfile" | read -r _ || echo >> "$keyfile" 
   diffstr=$(cat "$keyfile" | grep -v -E "^\s*key\s+\"\w{64}\";\s*(#.*)*$" \
@@ -22,6 +23,7 @@ while read keyfile file; do
     echo "$diffstr"
     exit 1
   fi
+ fi
 done < <(git diff --cached --name-status --diff-filter=ACM | cut -f2)
 
 # check for double keys:
